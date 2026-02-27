@@ -100,7 +100,7 @@ export default function PlayerManagerScreen({ navigation }) {
       )}
 
       {/* Start Tournament */}
-      <Pressable style={styles.startBtn} onPress={() => navigation.navigate('TournamentSetup')}>
+      <Pressable style={styles.startBtn} onPress={() => navigation.navigate('Tournament')}>
         <Text style={styles.startBtnText}>Start Tournament →</Text>
       </Pressable>
 
@@ -136,25 +136,26 @@ export default function PlayerManagerScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000',
   },
   addRow: {
     flexDirection: 'row',
     padding: 12,
     gap: 8,
-    backgroundColor: '#fff',
+    backgroundColor: '#111',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#333',
   },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#444',
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 8,
     fontSize: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a',
+    color: '#fff',
   },
   addBtn: {
     backgroundColor: '#2563eb',
@@ -171,21 +172,22 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     marginTop: 60,
-    color: '#999',
+    color: '#888',
     fontSize: 15,
   },
   playerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#111',
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#333',
   },
   playerName: {
     flex: 1,
     fontSize: 15,
+    color: '#eee',
   },
   actions: {
     flexDirection: 'row',
@@ -193,14 +195,14 @@ const styles = StyleSheet.create({
   },
   editBtn: {
     borderWidth: 1,
-    borderColor: '#999',
+    borderColor: '#555',
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   editBtnText: {
     fontSize: 13,
-    color: '#333',
+    color: '#aaa',
   },
   deleteBtn: {
     borderWidth: 1,
@@ -228,28 +230,33 @@ const styles = StyleSheet.create({
   // Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalBox: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a',
     borderRadius: 10,
     padding: 20,
     width: '80%',
     gap: 12,
+    borderWidth: 1,
+    borderColor: '#333',
   },
   modalTitle: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#fff',
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#444',
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 8,
     fontSize: 15,
+    color: '#fff',
+    backgroundColor: '#111',
   },
   modalButtons: {
     flexDirection: 'row',
@@ -261,7 +268,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   modalCancelText: {
-    color: '#666',
+    color: '#aaa',
     fontSize: 15,
   },
   modalSave: {

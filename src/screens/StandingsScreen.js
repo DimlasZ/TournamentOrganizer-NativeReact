@@ -37,8 +37,8 @@ export default function StandingsScreen() {
     <View style={styles.container}>
       <Text style={styles.subtitle}>After round {completedCount}</Text>
 
-      <ScrollView horizontal>
-        <View>
+      <ScrollView horizontal contentContainerStyle={{ minWidth: '100%' }}>
+        <View style={{ flex: 1 }}>
           {/* Header */}
           <View style={[styles.row, styles.headerRow]}>
             <Text style={[styles.cell, styles.rankCell, styles.headerText]}>#</Text>
@@ -91,15 +91,16 @@ function fmtPct(val) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000',
   },
   centered: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#000',
   },
   emptyState: {
-    color: '#999',
+    color: '#888',
     fontSize: 15,
   },
   subtitle: {
@@ -114,33 +115,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    backgroundColor: '#fff',
+    borderBottomColor: '#222',
+    backgroundColor: '#111',
     paddingVertical: 10,
   },
   headerRow: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#1a1a1a',
     borderBottomWidth: 2,
-    borderBottomColor: '#ccc',
+    borderBottomColor: '#333',
   },
   firstRow: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#2d1f00',
   },
   altRow: {
-    backgroundColor: '#fafafa',
+    backgroundColor: '#0d0d0d',
   },
   headerText: {
     fontWeight: '700',
-    color: '#444',
+    color: '#888',
     fontSize: 12,
   },
   cell: {
     paddingHorizontal: 8,
     fontSize: 14,
-    color: '#333',
+    color: '#ddd',
   },
   rankCell: {
-    width: 32,
+    width: 44,
     textAlign: 'center',
   },
   nameCell: {
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize: 14,
-    color: '#333',
+    color: '#ddd',
   },
   ptsCell: {
     width: 40,
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   pctCell: {
-    width: 52,
+    width: 62,
     textAlign: 'center',
   },
   boldText: {
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
   },
   firstText: {
     fontWeight: '700',
-    color: '#92400e',
+    color: '#fbbf24',
   },
   byeBadge: {
     fontSize: 10,
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
   },
   note: {
     fontSize: 11,
-    color: '#aaa',
+    color: '#666',
     textAlign: 'center',
     padding: 10,
   },

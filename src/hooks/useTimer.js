@@ -18,7 +18,7 @@
 //   alarm.wav        — looping alarm played when time expires
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Audio } from 'expo-av';
+import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
 const DEFAULT_DURATION_MS = 65 * 60 * 1000; // 1:05:00
 
@@ -28,7 +28,7 @@ export default function useTimer({
   alarmSound = null,
 } = {}) {
   const [duration, _setDuration] = useState(DEFAULT_DURATION_MS);
-  const [timeLeft, setTimeLeft] = useState(DEFAULT_DURATION_MS);
+  const [timeLeft, setTimeLeft]   = useState(DEFAULT_DURATION_MS);
   const [isRunning, setIsRunning] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [isWarning, setIsWarning] = useState(false);
@@ -40,72 +40,47 @@ export default function useTimer({
   const beeped20Ref  = useRef(false);
   const durationRef  = useRef(DEFAULT_DURATION_MS);
 
-  const sound40Ref    = useRef(null);
-  const sound20Ref    = useRef(null);
-  const alarmSoundRef = useRef(null);
-
-  // ── Audio setup ──────────────────────────────────────────────────────────
+  // ── Audio players ─────────────────────────────────────────────────────────
+  // useAudioPlayer must be called unconditionally (React hook rules).
+  const player40 = useAudioPlayer(sound40min);
+  const player20 = useAudioPlayer(sound20min);
+  const alarm    = useAudioPlayer(alarmSound);
 
   useEffect(() => {
-    async function setup() {
-      try {
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: true,
-        });
-
-        if (sound40min) {
-          const { sound } = await Audio.Sound.createAsync(sound40min);
-          sound40Ref.current = sound;
-        }
-
-        if (sound20min) {
-          const { sound } = await Audio.Sound.createAsync(sound20min);
-          sound20Ref.current = sound;
-        }
-
-        if (alarmSound) {
-          const { sound } = await Audio.Sound.createAsync(alarmSound);
-          await sound.setIsLoopingAsync(true);
-          alarmSoundRef.current = sound;
-        }
-      } catch (e) {
-        console.warn('[useTimer] Audio setup failed:', e);
-      }
-    }
-
-    setup();
-
-    return () => {
-      sound40Ref.current?.unloadAsync();
-      sound20Ref.current?.unloadAsync();
-      alarmSoundRef.current?.unloadAsync();
-    };
+    setAudioModeAsync({ playsInSilentModeIOS: true }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (alarmSound) {
+      try { alarm.loop = true; } catch {}
+    }
+  }, [alarm, alarmSound]);
 
   // ── Internal audio helpers ────────────────────────────────────────────────
 
-  const _play40 = useCallback(async () => {
-    try { await sound40Ref.current?.replayAsync(); } catch {}
-  }, []);
+  const _play40 = useCallback(() => {
+    if (!sound40min) return;
+    try { player40.seekTo(0); player40.play(); } catch {}
+  }, [player40, sound40min]);
 
-  const _play20 = useCallback(async () => {
-    try { await sound20Ref.current?.replayAsync(); } catch {}
-  }, []);
+  const _play20 = useCallback(() => {
+    if (!sound20min) return;
+    try { player20.seekTo(0); player20.play(); } catch {}
+  }, [player20, sound20min]);
 
-  const _startAlarm = useCallback(async () => {
-    try {
-      await alarmSoundRef.current?.replayAsync();
-    } catch {}
+  const _startAlarm = useCallback(() => {
+    if (alarmSound) {
+      try { alarm.seekTo(0); alarm.play(); } catch {}
+    }
     setShowAlarm(true);
-  }, []);
+  }, [alarm, alarmSound]);
 
-  const _stopAlarm = useCallback(async () => {
-    try {
-      await alarmSoundRef.current?.stopAsync();
-    } catch {}
+  const _stopAlarm = useCallback(() => {
+    if (alarmSound) {
+      try { alarm.pause(); alarm.seekTo(0); } catch {}
+    }
     setShowAlarm(false);
-  }, []);
+  }, [alarm, alarmSound]);
 
   // ── Tick ─────────────────────────────────────────────────────────────────
 
@@ -139,16 +114,13 @@ export default function useTimer({
 
   const start = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-
     endTimeRef.current  = Date.now() + durationRef.current;
     beeped40Ref.current = false;
     beeped20Ref.current = false;
-
     setTimeLeft(durationRef.current);
     setIsRunning(true);
     setIsExpired(false);
     setShowAlarm(false);
-
     intervalRef.current = setInterval(_tick, 1000);
   }, [_tick]);
 
@@ -159,7 +131,6 @@ export default function useTimer({
     }
     _stopAlarm();
     endTimeRef.current = null;
-
     setIsRunning(false);
     setIsExpired(false);
     setTimeLeft(durationRef.current);

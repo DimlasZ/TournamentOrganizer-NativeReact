@@ -150,7 +150,7 @@ function formatDate(d) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000',
   },
   content: {
     padding: 16,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#555',
+    color: '#888',
     paddingHorizontal: 14,
     paddingTop: 12,
     paddingBottom: 6,
@@ -169,25 +169,25 @@ const styles = StyleSheet.create({
   emptyState: {
     textAlign: 'center',
     marginTop: 40,
-    color: '#999',
+    color: '#888',
     fontSize: 15,
     paddingHorizontal: 20,
   },
   checkRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#111',
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#333',
     gap: 12,
   },
   checkbox: {
     width: 22,
     height: 22,
     borderWidth: 2,
-    borderColor: '#aaa',
+    borderColor: '#555',
     borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
@@ -203,17 +203,18 @@ const styles = StyleSheet.create({
   },
   checkLabel: {
     fontSize: 15,
+    color: '#eee',
   },
   footer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#111',
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#333',
     padding: 12,
     gap: 10,
   },
   selectedCount: {
     fontSize: 14,
-    color: '#555',
+    color: '#888',
     textAlign: 'center',
   },
   dateRow: {
@@ -223,21 +224,21 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 15,
-    color: '#333',
+    color: '#aaa',
     width: 40,
   },
   dateBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#444',
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#1a1a1a',
   },
   dateBtnText: {
     fontSize: 15,
-    color: '#333',
+    color: '#eee',
   },
   primaryBtn: {
     backgroundColor: '#2563eb',
@@ -251,7 +252,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   disabledBtn: {
-    backgroundColor: '#93c5fd',
+    backgroundColor: '#1e3a8a',
+    opacity: 0.6,
   },
   dangerBtn: {
     borderWidth: 1,
@@ -267,12 +269,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   infoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#111',
     borderRadius: 10,
     padding: 16,
     gap: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#333',
   },
   infoRow: {
     flexDirection: 'row',
@@ -281,11 +283,12 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#888',
   },
   infoValue: {
     fontSize: 15,
     fontWeight: '600',
+    color: '#eee',
   },
   playerNames: {
     fontSize: 13,

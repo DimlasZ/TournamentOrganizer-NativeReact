@@ -7,7 +7,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const REPO_OWNER  = 'DimlasZ';
-const REPO_NAME   = 'TournamentOrganizer';
+const REPO_NAME   = 'TournamentOrganizer-NativeReact';
 const RESULTS_DIR = 'results';
 const TOKEN_KEY   = 'gh_pat';
 

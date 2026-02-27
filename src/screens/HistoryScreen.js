@@ -40,7 +40,7 @@ export default function HistoryScreen({ navigation }) {
           onPress: () => {
             if (t._isCurrent) reopenCurrentTournament();
             else reopenTournament(t.id);
-            navigation.navigate('Pairings');
+            navigation.navigate('Tournament', { screen: 'Pairings' });
           },
         },
       ]
@@ -119,25 +119,26 @@ export default function HistoryScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000',
   },
   centered: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#000',
   },
   emptyState: {
-    color: '#999',
+    color: '#888',
     fontSize: 15,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#111',
     marginHorizontal: 12,
     marginTop: 12,
     borderRadius: 10,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#333',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
   cardDate: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#222',
+    color: '#eee',
   },
   cardMeta: {
     fontSize: 13,
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
   },
   cardWinner: {
     fontSize: 13,
-    color: '#555',
+    color: '#aaa',
     marginTop: 2,
   },
   cardActions: {
@@ -167,14 +168,14 @@ const styles = StyleSheet.create({
   },
   reopenBtn: {
     borderWidth: 1,
-    borderColor: '#999',
+    borderColor: '#555',
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   reopenBtnText: {
     fontSize: 13,
-    color: '#333',
+    color: '#ddd',
   },
   deleteBtn: {
     borderWidth: 1,
@@ -188,9 +189,9 @@ const styles = StyleSheet.create({
     color: '#dc2626',
   },
   disabledBtn: {
-    borderColor: '#ccc',
+    borderColor: '#333',
   },
   disabledBtnText: {
-    color: '#ccc',
+    color: '#555',
   },
 });
