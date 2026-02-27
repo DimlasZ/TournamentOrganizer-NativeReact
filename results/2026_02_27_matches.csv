@@ -1,0 +1,13 @@
+draws,player1,player1Wins,player2,player2Wins,round,tournamentDate
+0,Gianni,2,Fubu,0,1,2026-02-26T23:00:00Z
+0,Joel R.,2,Elie,1,1,2026-02-26T23:00:00Z
+0,Jonas W.,2,Andrin,1,1,2026-02-26T23:00:00Z
+0,Joel K.,1,Filipe,0,1,2026-02-26T23:00:00Z
+1,Guy,1,Dimlas,1,1,2026-02-26T23:00:00Z
+1,Ivo,0,Felix,0,1,2026-02-26T23:00:00Z
+1,Gianni,1,Joel K.,1,2,2026-02-26T23:00:00Z
+1,Joel R.,1,Jonas W.,1,2,2026-02-26T23:00:00Z
+0,Dimlas,0,Felix,1,2,2026-02-26T23:00:00Z
+0,Guy,0,Ivo,1,2,2026-02-26T23:00:00Z
+0,Andrin,1,Elie,2,2,2026-02-26T23:00:00Z
+0,Filipe,2,Fubu,0,2,2026-02-26T23:00:00Z
