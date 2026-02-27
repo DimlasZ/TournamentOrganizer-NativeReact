@@ -1,0 +1,25 @@
+draws,player1,player1Wins,player2,player2Wins,round,tournamentDate
+0,Andrin,0,Tommy,2,1,2026-02-21T23:00:00Z
+0,Dimlas,2,Mäxu,0,1,2026-02-21T23:00:00Z
+0,Guy,1,Thomas,2,1,2026-02-21T23:00:00Z
+0,Noe T.,2,Joel K.,1,1,2026-02-21T23:00:00Z
+0,Kas,2,Tinu,0,1,2026-02-21T23:00:00Z
+0,Lukas Stalder,0,Myri,2,1,2026-02-21T23:00:00Z
+0,Dimlas,1,Kas,2,2,2026-02-21T23:00:00Z
+0,Myri,0,Tommy,1,2,2026-02-21T23:00:00Z
+0,Noe T.,2,Thomas,1,2,2026-02-21T23:00:00Z
+0,Guy,2,Joel K.,0,2,2026-02-21T23:00:00Z
+0,Andrin,2,Lukas Stalder,1,2,2026-02-21T23:00:00Z
+0,Mäxu,0,Tinu,2,2,2026-02-21T23:00:00Z
+1,Tommy,1,Kas,1,3,2026-02-21T23:00:00Z
+0,Noe T.,0,Myri,2,3,2026-02-21T23:00:00Z
+0,Thomas,2,Dimlas,0,3,2026-02-21T23:00:00Z
+0,Tinu,0,Andrin,2,3,2026-02-21T23:00:00Z
+0,Guy,2,Mäxu,0,3,2026-02-21T23:00:00Z
+0,Joel K.,2,Lukas Stalder,0,3,2026-02-21T23:00:00Z
+0,Tommy,0,Thomas,2,4,2026-02-21T23:00:00Z
+0,Kas,2,Myri,0,4,2026-02-21T23:00:00Z
+0,Noe T.,0,Andrin,2,4,2026-02-21T23:00:00Z
+0,Guy,2,Dimlas,0,4,2026-02-21T23:00:00Z
+0,Tinu,0,Joel K.,2,4,2026-02-21T23:00:00Z
+0,Lukas Stalder,2,Mäxu,0,4,2026-02-21T23:00:00Z
