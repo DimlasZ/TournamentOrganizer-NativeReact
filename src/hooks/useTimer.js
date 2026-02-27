@@ -1,26 +1,27 @@
-// useTimer — clean countdown timer hook with audio milestone support.
+// useTimer — countdown timer with background notification support.
 //
-// Usage:
-//   const timer = useTimer();
-//   timer.start()         — start / restart at current duration
-//   timer.stop()          — stop and reset
-//   timer.display         — formatted string "1:05:00"
-//   timer.isRunning       — bool
-//   timer.isExpired       — bool (true when countdown reaches 0)
-//   timer.showAlarm       — bool (drives the alarm modal)
-//   timer.dismissAlarm()  — stops looping alarm sound, hides modal
-//   timer.duration        — current duration in ms
-//   timer.setDuration(ms) — change duration (only before starting)
+// When the screen is locked / app is backgrounded, Android throttles the JS
+// timer. To ensure 40-min, 20-min, and end-of-round events fire reliably,
+// we schedule local OS notifications at the exact target times. Those fire
+// even when the screen is locked.
 //
-// Sound files (in assets/sounds/):
-//   40_min_left.mp3  — played when 40 minutes remain
-//   20_min_left.mp3  — played when 20 minutes remain
-//   alarm.wav        — looping alarm played when time expires
+// An AppState listener re-syncs timer state when the app returns to foreground.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { AppState } from 'react-native';
 import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
+import * as Notifications from 'expo-notifications';
 
 const DEFAULT_DURATION_MS = 65 * 60 * 1000; // 1:05:00
+
+// Suppress banners when app is foregrounded — we handle alerts in-app.
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: false,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function useTimer({
   sound40min = null,
@@ -34,14 +35,15 @@ export default function useTimer({
   const [isWarning, setIsWarning] = useState(false);
   const [showAlarm, setShowAlarm] = useState(false);
 
-  const endTimeRef   = useRef(null);
-  const intervalRef  = useRef(null);
-  const beeped40Ref  = useRef(false);
-  const beeped20Ref  = useRef(false);
-  const durationRef  = useRef(DEFAULT_DURATION_MS);
+  const endTimeRef    = useRef(null);
+  const intervalRef   = useRef(null);
+  const beeped40Ref   = useRef(false);
+  const beeped20Ref   = useRef(false);
+  const durationRef   = useRef(DEFAULT_DURATION_MS);
+  const isRunningRef  = useRef(false);
+  const notifIdsRef   = useRef([]);
 
   // ── Audio players ─────────────────────────────────────────────────────────
-  // useAudioPlayer must be called unconditionally (React hook rules).
   const player40 = useAudioPlayer(sound40min);
   const player20 = useAudioPlayer(sound20min);
   const alarm    = useAudioPlayer(alarmSound);
@@ -56,6 +58,17 @@ export default function useTimer({
     }
   }, [alarm, alarmSound]);
 
+  // ── Notification setup ────────────────────────────────────────────────────
+  useEffect(() => {
+    Notifications.requestPermissionsAsync().catch(() => {});
+    Notifications.setNotificationChannelAsync('round-timer', {
+      name: 'Round Timer',
+      importance: Notifications.AndroidImportance.MAX,
+      sound: 'default',
+      vibrationPattern: [0, 400, 200, 400],
+    }).catch(() => {});
+  }, []);
+
   // ── Internal audio helpers ────────────────────────────────────────────────
 
   const _play40 = useCallback(() => {
@@ -68,12 +81,74 @@ export default function useTimer({
     try { player20.seekTo(0); player20.play(); } catch {}
   }, [player20, sound20min]);
 
+  // ── Notification helpers ──────────────────────────────────────────────────
+
+  const _cancelNotifications = useCallback(() => {
+    const ids = notifIdsRef.current;
+    notifIdsRef.current = [];
+    ids.forEach(id => Notifications.cancelScheduledNotificationAsync(id).catch(() => {}));
+  }, []);
+
+  const _scheduleNotifications = useCallback((durationMs) => {
+    _cancelNotifications();
+    const ids = [];
+
+    const schedule = async () => {
+      if (durationMs > 40 * 60 * 1000) {
+        const secs = Math.max(1, Math.round((durationMs - 40 * 60 * 1000) / 1000));
+        const id = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: '40 Minutes Remaining',
+            body: 'Round time check',
+            sound: 'default',
+            android: { channelId: 'round-timer', priority: 'high' },
+          },
+          trigger: { seconds: secs, repeats: false },
+        }).catch(() => null);
+        if (id) ids.push(id);
+      }
+
+      if (durationMs > 20 * 60 * 1000) {
+        const secs = Math.max(1, Math.round((durationMs - 20 * 60 * 1000) / 1000));
+        const id = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: '20 Minutes Remaining',
+            body: 'Round time check',
+            sound: 'default',
+            android: { channelId: 'round-timer', priority: 'high' },
+          },
+          trigger: { seconds: secs, repeats: false },
+        }).catch(() => null);
+        if (id) ids.push(id);
+      }
+
+      const endSecs = Math.max(1, Math.round(durationMs / 1000));
+      const id = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Time's Up!",
+          body: 'Round has ended',
+          sound: 'default',
+          android: { channelId: 'round-timer', priority: 'max' },
+        },
+        trigger: { seconds: endSecs, repeats: false },
+      }).catch(() => null);
+      if (id) ids.push(id);
+
+      notifIdsRef.current = ids;
+    };
+
+    schedule();
+  }, [_cancelNotifications]);
+
+  // ── Alarm ─────────────────────────────────────────────────────────────────
+
   const _startAlarm = useCallback(() => {
     if (alarmSound) {
       try { alarm.seekTo(0); alarm.play(); } catch {}
     }
     setShowAlarm(true);
-  }, [alarm, alarmSound]);
+    _cancelNotifications();
+  }, [alarm, alarmSound, _cancelNotifications]);
 
   const _stopAlarm = useCallback(() => {
     if (alarmSound) {
@@ -82,7 +157,7 @@ export default function useTimer({
     setShowAlarm(false);
   }, [alarm, alarmSound]);
 
-  // ── Tick ─────────────────────────────────────────────────────────────────
+  // ── Tick ──────────────────────────────────────────────────────────────────
 
   const _tick = useCallback(() => {
     const remaining = endTimeRef.current - Date.now();
@@ -92,6 +167,7 @@ export default function useTimer({
       intervalRef.current = null;
       setTimeLeft(0);
       setIsRunning(false);
+      isRunningRef.current = false;
       setIsExpired(true);
       _startAlarm();
       return;
@@ -110,19 +186,44 @@ export default function useTimer({
     }
   }, [_play40, _play20, _startAlarm]);
 
+  // ── AppState sync: re-check timer when app returns to foreground ──────────
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active' && isRunningRef.current && endTimeRef.current) {
+        const remaining = endTimeRef.current - Date.now();
+        if (remaining <= 0) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          setTimeLeft(0);
+          setIsRunning(false);
+          isRunningRef.current = false;
+          setIsExpired(true);
+          _startAlarm();
+        } else {
+          setTimeLeft(remaining);
+          setIsWarning(remaining < 10 * 60 * 1000);
+        }
+      }
+    });
+    return () => sub.remove();
+  }, [_startAlarm]);
+
   // ── Public controls ───────────────────────────────────────────────────────
 
   const start = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    endTimeRef.current  = Date.now() + durationRef.current;
-    beeped40Ref.current = false;
-    beeped20Ref.current = false;
+    endTimeRef.current   = Date.now() + durationRef.current;
+    beeped40Ref.current  = false;
+    beeped20Ref.current  = false;
     setTimeLeft(durationRef.current);
     setIsRunning(true);
+    isRunningRef.current = true;
     setIsExpired(false);
     setShowAlarm(false);
-    intervalRef.current = setInterval(_tick, 1000);
-  }, [_tick]);
+    intervalRef.current  = setInterval(_tick, 1000);
+    _scheduleNotifications(durationRef.current);
+  }, [_tick, _scheduleNotifications]);
 
   const stop = useCallback(() => {
     if (intervalRef.current) {
@@ -130,13 +231,15 @@ export default function useTimer({
       intervalRef.current = null;
     }
     _stopAlarm();
-    endTimeRef.current = null;
+    _cancelNotifications();
+    endTimeRef.current   = null;
     setIsRunning(false);
+    isRunningRef.current = false;
     setIsExpired(false);
     setTimeLeft(durationRef.current);
-    beeped40Ref.current = false;
-    beeped20Ref.current = false;
-  }, [_stopAlarm]);
+    beeped40Ref.current  = false;
+    beeped20Ref.current  = false;
+  }, [_stopAlarm, _cancelNotifications]);
 
   const setDuration = useCallback((ms) => {
     durationRef.current = ms;
@@ -149,6 +252,9 @@ export default function useTimer({
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      notifIdsRef.current.forEach(id =>
+        Notifications.cancelScheduledNotificationAsync(id).catch(() => {})
+      );
     };
   }, []);
 
