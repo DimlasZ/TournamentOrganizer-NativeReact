@@ -22,7 +22,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "package": "com.dimlas.TournamentOrganizerNativeReact",
-      "permissions": ["SCHEDULE_EXACT_ALARM", "USE_EXACT_ALARM", "RECEIVE_BOOT_COMPLETED", "FOREGROUND_SERVICE", "FOREGROUND_SERVICE_MEDIA_PLAYBACK"]
+      "permissions": ["SCHEDULE_EXACT_ALARM", "USE_EXACT_ALARM", "RECEIVE_BOOT_COMPLETED", "FOREGROUND_SERVICE"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -37,8 +37,8 @@
       ["expo-notifications", {
         "mode": "production",
         "sounds": [
-          "./assets/sounds/40_min_left.mp3",
-          "./assets/sounds/20_min_left.mp3",
+          "./assets/sounds/alert_40min.mp3",
+          "./assets/sounds/alert_20min.mp3",
           "./assets/sounds/alarm.wav"
         ]
       }]
