@@ -101,9 +101,8 @@ export default function useTimer({
             title: '40 Minutes Remaining',
             body: 'Round time check',
             sound: 'default',
-            android: { channelId: 'round-timer', priority: 'high' },
           },
-          trigger: { seconds: secs, repeats: false },
+          trigger: { seconds: secs, repeats: false, channelId: 'round-timer' },
         }).catch(() => null);
         if (id) ids.push(id);
       }
@@ -115,9 +114,8 @@ export default function useTimer({
             title: '20 Minutes Remaining',
             body: 'Round time check',
             sound: 'default',
-            android: { channelId: 'round-timer', priority: 'high' },
           },
-          trigger: { seconds: secs, repeats: false },
+          trigger: { seconds: secs, repeats: false, channelId: 'round-timer' },
         }).catch(() => null);
         if (id) ids.push(id);
       }
@@ -128,9 +126,8 @@ export default function useTimer({
           title: "Time's Up!",
           body: 'Round has ended',
           sound: 'default',
-          android: { channelId: 'round-timer', priority: 'max' },
         },
-        trigger: { seconds: endSecs, repeats: false },
+        trigger: { seconds: endSecs, repeats: false, channelId: 'round-timer' },
       }).catch(() => null);
       if (id) ids.push(id);
 
