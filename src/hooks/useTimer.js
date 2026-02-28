@@ -8,7 +8,7 @@
 // An AppState listener re-syncs timer state when the app returns to foreground.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Alert } from 'react-native';
 import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import * as Notifications from 'expo-notifications';
 
@@ -61,13 +61,11 @@ export default function useTimer({
   // ── Notification setup ────────────────────────────────────────────────────
   useEffect(() => {
     Notifications.requestPermissionsAsync().catch(() => {});
-    Notifications.setNotificationChannelAsync('round-timer-2', {
+    Notifications.setNotificationChannelAsync('round-timer-3', {
       name: 'Round Timer',
       importance: Notifications.AndroidImportance.MAX,
       sound: 'default',
-      vibrationPattern: [0, 400, 200, 400],
-      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-      bypassDnd: true,
+      enableVibrate: true,
     }).catch(() => {});
   }, []);
 
@@ -102,9 +100,9 @@ export default function useTimer({
           content: {
             title: '40 Minutes Remaining',
             body: 'Round time check',
-            sound: 'alert_40min.mp3',
+            sound: 'default',
           },
-          trigger: { seconds: secs, repeats: false, channelId: 'round-timer-2' },
+          trigger: { seconds: secs, repeats: false, channelId: 'round-timer-3' },
         }).catch(() => null);
         if (id) ids.push(id);
       }
@@ -115,9 +113,9 @@ export default function useTimer({
           content: {
             title: '20 Minutes Remaining',
             body: 'Round time check',
-            sound: 'alert_20min.mp3',
+            sound: 'default',
           },
-          trigger: { seconds: secs, repeats: false, channelId: 'round-timer-2' },
+          trigger: { seconds: secs, repeats: false, channelId: 'round-timer-3' },
         }).catch(() => null);
         if (id) ids.push(id);
       }
@@ -127,13 +125,14 @@ export default function useTimer({
         content: {
           title: "Time's Up!",
           body: 'Round has ended',
-          sound: 'alarm.wav',
+          sound: 'default',
         },
-        trigger: { seconds: endSecs, repeats: false, channelId: 'round-timer-2' },
+        trigger: { seconds: endSecs, repeats: false, channelId: 'round-timer-3' },
       }).catch(() => null);
       if (id) ids.push(id);
 
       notifIdsRef.current = ids;
+      Alert.alert('Notif Debug', `Scheduled ${ids.length} notification(s)`);
     };
 
     schedule();
