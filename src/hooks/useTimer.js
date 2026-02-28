@@ -1,18 +1,24 @@
-// useTimer — countdown timer with background notification support.
+// useTimer — countdown timer with foreground-service background support.
 //
-// When the screen is locked / app is backgrounded, Android throttles the JS
-// timer. To ensure 40-min, 20-min, and end-of-round events fire reliably,
-// we schedule local OS notifications at the exact target times. Those fire
-// even when the screen is locked.
+// On Android, audio is blocked while the screen is locked unless the app runs
+// as a foreground service. We start a "mediaPlayback" foreground service when
+// the timer starts and stop it when the timer is stopped or dismissed. This
+// keeps the JS thread and audio session alive even on the lock screen.
+//
+// Scheduled OS notifications are kept as a secondary safety net so the user
+// sees a lock-screen alert even if the device is under extreme battery pressure.
 //
 // An AppState listener re-syncs timer state when the app returns to foreground.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { AppState, Alert } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import * as Notifications from 'expo-notifications';
+import ForegroundService from '@supersami/rn-foreground-service';
 
 const DEFAULT_DURATION_MS = 65 * 60 * 1000; // 1:05:00
+
+const FG_NOTIF_ID = 1001;
 
 // Suppress banners when app is foregrounded — we handle alerts in-app.
 Notifications.setNotificationHandler({
@@ -22,6 +28,32 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
+
+// ── Foreground service helpers (Android only) ─────────────────────────────────
+
+async function _fgStart() {
+  if (Platform.OS !== 'android') return;
+  try {
+    await ForegroundService.startService({
+      id: FG_NOTIF_ID,
+      title: 'Tournament Timer Running',
+      message: 'Timer is active — sounds will play on time.',
+      ServiceType: 'mediaPlayback',
+      importance: 'high',
+      visibility: 'public',
+      icon: 'ic_launcher',
+    });
+  } catch {}
+}
+
+async function _fgStop() {
+  if (Platform.OS !== 'android') return;
+  try {
+    await ForegroundService.stopServiceAll();
+  } catch {}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function useTimer({
   sound40min = null,
@@ -66,6 +98,7 @@ export default function useTimer({
       importance: Notifications.AndroidImportance.MAX,
       sound: 'default',
       enableVibrate: true,
+      lockscreenVisibility: 1, // VISIBILITY_PUBLIC
     }).catch(() => {});
   }, []);
 
@@ -132,7 +165,6 @@ export default function useTimer({
       if (id) ids.push(id);
 
       notifIdsRef.current = ids;
-      Alert.alert('Notif Debug', `Scheduled ${ids.length} notification(s)`);
     };
 
     schedule();
@@ -153,6 +185,7 @@ export default function useTimer({
       try { alarm.pause(); alarm.seekTo(0); } catch {}
     }
     setShowAlarm(false);
+    _fgStop();
   }, [alarm, alarmSound]);
 
   // ── Tick ──────────────────────────────────────────────────────────────────
@@ -221,6 +254,7 @@ export default function useTimer({
     setShowAlarm(false);
     intervalRef.current  = setInterval(_tick, 1000);
     _scheduleNotifications(durationRef.current);
+    _fgStart();
   }, [_tick, _scheduleNotifications]);
 
   const stop = useCallback(() => {
@@ -237,6 +271,7 @@ export default function useTimer({
     setTimeLeft(durationRef.current);
     beeped40Ref.current  = false;
     beeped20Ref.current  = false;
+    _fgStop();
   }, [_stopAlarm, _cancelNotifications]);
 
   const setDuration = useCallback((ms) => {
@@ -253,6 +288,7 @@ export default function useTimer({
       notifIdsRef.current.forEach(id =>
         Notifications.cancelScheduledNotificationAsync(id).catch(() => {})
       );
+      _fgStop();
     };
   }, []);
 

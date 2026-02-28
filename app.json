@@ -22,7 +22,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "package": "com.dimlas.TournamentOrganizerNativeReact",
-      "permissions": ["SCHEDULE_EXACT_ALARM", "USE_EXACT_ALARM", "RECEIVE_BOOT_COMPLETED", "FOREGROUND_SERVICE"]
+      "permissions": ["SCHEDULE_EXACT_ALARM", "USE_EXACT_ALARM", "RECEIVE_BOOT_COMPLETED", "FOREGROUND_SERVICE", "FOREGROUND_SERVICE_MEDIA_PLAYBACK", "WAKE_LOCK"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,6 +34,7 @@
       "expo-sharing",
       "@react-native-community/datetimepicker",
       "expo-audio",
+      "./plugins/withForegroundService",
       ["expo-notifications", {
         "mode": "production",
         "sounds": [
