@@ -102,7 +102,7 @@ export default function useTimer({
           content: {
             title: '40 Minutes Remaining',
             body: 'Round time check',
-            sound: 'default',
+            sound: '40_min_left.mp3',
           },
           trigger: { seconds: secs, repeats: false, channelId: 'round-timer-2' },
         }).catch(() => null);
@@ -115,7 +115,7 @@ export default function useTimer({
           content: {
             title: '20 Minutes Remaining',
             body: 'Round time check',
-            sound: 'default',
+            sound: '20_min_left.mp3',
           },
           trigger: { seconds: secs, repeats: false, channelId: 'round-timer-2' },
         }).catch(() => null);
@@ -127,7 +127,7 @@ export default function useTimer({
         content: {
           title: "Time's Up!",
           body: 'Round has ended',
-          sound: 'default',
+          sound: 'alarm.wav',
         },
         trigger: { seconds: endSecs, repeats: false, channelId: 'round-timer-2' },
       }).catch(() => null);
