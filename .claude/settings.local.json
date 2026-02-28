@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install @react-navigation/bottom-tabs --save)"
+      "Bash(npm install @react-navigation/bottom-tabs --save)",
+      "Bash(npm install @supersami/rn-foreground-service)",
+      "Bash(xargs ls)"
     ]
   }
 }
