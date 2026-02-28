@@ -49,7 +49,7 @@ export default function useTimer({
   const alarm    = useAudioPlayer(alarmSound);
 
   useEffect(() => {
-    setAudioModeAsync({ playsInSilentModeIOS: true }).catch(() => {});
+    setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -61,11 +61,13 @@ export default function useTimer({
   // ── Notification setup ────────────────────────────────────────────────────
   useEffect(() => {
     Notifications.requestPermissionsAsync().catch(() => {});
-    Notifications.setNotificationChannelAsync('round-timer', {
+    Notifications.setNotificationChannelAsync('round-timer-2', {
       name: 'Round Timer',
       importance: Notifications.AndroidImportance.MAX,
       sound: 'default',
       vibrationPattern: [0, 400, 200, 400],
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+      bypassDnd: true,
     }).catch(() => {});
   }, []);
 
@@ -102,7 +104,7 @@ export default function useTimer({
             body: 'Round time check',
             sound: 'default',
           },
-          trigger: { seconds: secs, repeats: false, channelId: 'round-timer' },
+          trigger: { seconds: secs, repeats: false, channelId: 'round-timer-2' },
         }).catch(() => null);
         if (id) ids.push(id);
       }
@@ -115,7 +117,7 @@ export default function useTimer({
             body: 'Round time check',
             sound: 'default',
           },
-          trigger: { seconds: secs, repeats: false, channelId: 'round-timer' },
+          trigger: { seconds: secs, repeats: false, channelId: 'round-timer-2' },
         }).catch(() => null);
         if (id) ids.push(id);
       }
@@ -127,7 +129,7 @@ export default function useTimer({
           body: 'Round has ended',
           sound: 'default',
         },
-        trigger: { seconds: endSecs, repeats: false, channelId: 'round-timer' },
+        trigger: { seconds: endSecs, repeats: false, channelId: 'round-timer-2' },
       }).catch(() => null);
       if (id) ids.push(id);
 
