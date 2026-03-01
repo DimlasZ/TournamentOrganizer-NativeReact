@@ -1,12 +1,12 @@
-// useTimer — countdown timer with foreground-service background support.
+// useTimer — countdown timer with notification-based background audio.
 //
-// On Android, audio is blocked while the screen is locked unless the app runs
-// as a foreground service. We start a "mediaPlayback" foreground service when
-// the timer starts and stop it when the timer is stopped or dismissed. This
-// keeps the JS thread and audio session alive even on the lock screen.
+// OS-scheduled notifications are the PRIMARY mechanism for lock-screen /
+// background alerts. Each alert (40 min, 20 min, time-up) has its own
+// Android notification channel with a custom sound file, so the OS plays
+// the correct sound even when the JS thread is suspended.
 //
-// Scheduled OS notifications are kept as a secondary safety net so the user
-// sees a lock-screen alert even if the device is under extreme battery pressure.
+// In-app expo-audio playback is a SUPPLEMENT for when the app is in the
+// foreground. A foreground service keeps the process alive as a bonus.
 //
 // An AppState listener re-syncs timer state when the app returns to foreground.
 
@@ -90,15 +90,32 @@ export default function useTimer({
     }
   }, [alarm, alarmSound]);
 
-  // ── Notification setup ────────────────────────────────────────────────────
+  // ── Notification channels (one per sound, new IDs so Android picks up custom sounds) ──
   useEffect(() => {
     Notifications.requestPermissionsAsync().catch(() => {});
-    Notifications.setNotificationChannelAsync('round-timer-3', {
-      name: 'Round Timer',
+
+    const channelOpts = {
       importance: Notifications.AndroidImportance.MAX,
-      sound: 'default',
       enableVibrate: true,
       lockscreenVisibility: 1, // VISIBILITY_PUBLIC
+    };
+
+    Notifications.setNotificationChannelAsync('timer-40min', {
+      name: 'Timer — 40 min warning',
+      sound: 'alert_40min.mp3',
+      ...channelOpts,
+    }).catch(() => {});
+
+    Notifications.setNotificationChannelAsync('timer-20min', {
+      name: 'Timer — 20 min warning',
+      sound: 'alert_20min.mp3',
+      ...channelOpts,
+    }).catch(() => {});
+
+    Notifications.setNotificationChannelAsync('timer-alarm', {
+      name: 'Timer — Time Up',
+      sound: 'alarm.wav',
+      ...channelOpts,
     }).catch(() => {});
   }, []);
 
@@ -133,9 +150,9 @@ export default function useTimer({
           content: {
             title: '40 Minutes Remaining',
             body: 'Round time check',
-            sound: 'default',
+            sound: 'alert_40min.mp3',
           },
-          trigger: { seconds: secs, repeats: false, channelId: 'round-timer-3' },
+          trigger: { seconds: secs, repeats: false, channelId: 'timer-40min' },
         }).catch(() => null);
         if (id) ids.push(id);
       }
@@ -146,9 +163,9 @@ export default function useTimer({
           content: {
             title: '20 Minutes Remaining',
             body: 'Round time check',
-            sound: 'default',
+            sound: 'alert_20min.mp3',
           },
-          trigger: { seconds: secs, repeats: false, channelId: 'round-timer-3' },
+          trigger: { seconds: secs, repeats: false, channelId: 'timer-20min' },
         }).catch(() => null);
         if (id) ids.push(id);
       }
@@ -158,9 +175,10 @@ export default function useTimer({
         content: {
           title: "Time's Up!",
           body: 'Round has ended',
-          sound: 'default',
+          sound: 'alarm.wav',
+          sticky: true,
         },
-        trigger: { seconds: endSecs, repeats: false, channelId: 'round-timer-3' },
+        trigger: { seconds: endSecs, repeats: false, channelId: 'timer-alarm' },
       }).catch(() => null);
       if (id) ids.push(id);
 
